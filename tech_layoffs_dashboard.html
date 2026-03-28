@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Global Tech Layoffs — Executive Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --ink:       #1a1a2e;
+  --ink-light: #2e2e4a;
+  --slate:     #4a4a6a;
+  --steel:     #7a7a9a;
+  --rule:      #e2e2ec;
+  --bg:        #f7f7fb;
+  --white:     #ffffff;
+  --red:       #c0392b;
+  --red-soft:  #f5ece9;
+  --amber:     #d4882a;
+  --amber-soft:#fdf4e7;
+  --teal:      #1a7a6e;
+  --teal-soft: #e6f4f2;
+  --navy:      #1e3a5f;
+  --navy-soft: #e8eef5;
+  --gold:      #b8962e;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Lato',sans-serif;
+  font-weight:300;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── MASTHEAD ── */
+.masthead{
+  background:var(--ink);
+  padding:0 56px;
+  display:flex;
+  align-items:stretch;
+  justify-content:space-between;
+  border-bottom:3px solid var(--red);
+}
+.masthead-left{
+  padding:32px 0;
+  border-right:1px solid rgba(255,255,255,0.08);
+  padding-right:48px;
+}
+.overline{
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:10px;
+}
+.masthead h1{
+  font-family:'Playfair Display',serif;
+  font-weight:700;
+  font-size:32px;
+  color:#fff;
+  letter-spacing:-0.5px;
+  line-height:1.1;
+}
+.masthead h1 em{
+  font-style:italic;
+  color:#c8c8e8;
+}
+.masthead-meta{
+  display:flex;
+  align-items:center;
+  gap:48px;
+  padding:0 48px;
+}
+.meta-item{
+  text-align:center;
+}
+.meta-val{
+  font-family:'Playfair Display',serif;
+  font-size:26px;
+  font-weight:600;
+  color:#fff;
+  letter-spacing:-0.5px;
+}
+.meta-label{
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-top:3px;
+}
+.meta-divider{
+  width:1px;
+  height:40px;
+  background:rgba(255,255,255,0.1);
+}
+.masthead-date{
+  padding:0 0 0 48px;
+  border-left:1px solid rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+}
+.date-box{
+  text-align:right;
+}
+.date-period{
+  font-family:'Playfair Display',serif;
+  font-size:14px;
+  color:#c8c8e8;
+}
+.date-sub{
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--steel);
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* ── KPI ROW ── */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:var(--white);
+  border-bottom:1px solid var(--rule);
+}
+.kpi{
+  padding:28px 36px;
+  border-right:1px solid var(--rule);
+  position:relative;
+  cursor:default;
+  transition:background 0.2s;
+}
+.kpi:last-child{border-right:none;}
+.kpi:hover{background:#fafafe;}
+.kpi-accent{
+  width:3px;
+  height:36px;
+  position:absolute;
+  left:0;top:28px;
+}
+.kpi-label{
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:10px;
+  padding-left:12px;
+}
+.kpi-number{
+  font-family:'Playfair Display',serif;
+  font-size:38px;
+  font-weight:700;
+  letter-spacing:-1.5px;
+  line-height:1;
+  padding-left:12px;
+}
+.kpi-sub{
+  font-size:11px;
+  color:var(--steel);
+  margin-top:6px;
+  padding-left:12px;
+  line-height:1.4;
+}
+.kpi-trend{
+  font-size:10px;
+  font-weight:700;
+  margin-top:4px;
+  padding-left:12px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+/* ── NAV TABS ── */
+.nav-bar{
+  background:var(--white);
+  border-bottom:1px solid var(--rule);
+  padding:0 56px;
+  display:flex;
+  align-items:center;
+  gap:0;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.nav-tab{
+  padding:16px 24px;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s;
+  user-select:none;
+}
+.nav-tab:hover{color:var(--ink);}
+.nav-tab.active{
+  color:var(--ink);
+  border-bottom-color:var(--red);
+  font-weight:700;
+}
+.nav-right{
+  margin-left:auto;
+  font-size:10px;
+  letter-spacing:1.5px;
+  color:var(--steel);
+  text-transform:uppercase;
+}
+
+/* ── PANELS ── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── LAYOUT ── */
+.page{padding:40px 56px 60px;}
+
+.section-rule{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:28px;
+}
+.section-rule h2{
+  font-family:'Playfair Display',serif;
+  font-weight:600;
+  font-size:20px;
+  white-space:nowrap;
+  letter-spacing:-0.3px;
+}
+.rule-line{
+  flex:1;
+  height:1px;
+  background:var(--rule);
+}
+.section-caption{
+  font-size:11px;
+  color:var(--steel);
+  text-transform:uppercase;
+  letter-spacing:2px;
+  white-space:nowrap;
+}
+
+.grid-3col{display:grid;grid-template-columns:2fr 1fr 1fr;gap:20px;margin-bottom:20px;}
+.grid-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.grid-2col-r{display:grid;grid-template-columns:1fr 2fr;gap:20px;margin-bottom:20px;}
+
+/* ── CARDS ── */
+.card{
+  background:var(--white);
+  border:1px solid var(--rule);
+  border-top:3px solid var(--ink);
+  padding:24px 28px;
+}
+.card.red-top{border-top-color:var(--red);}
+.card.teal-top{border-top-color:var(--teal);}
+.card.amber-top{border-top-color:var(--amber);}
+.card.navy-top{border-top-color:var(--navy);}
+.card.gold-top{border-top-color:var(--gold);}
+
+.card-title{
+  font-size:10px;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.card-title span{
+  font-size:10px;
+  letter-spacing:1px;
+  background:var(--bg);
+  padding:3px 8px;
+  color:var(--slate);
+}
+
+/* ── CHART CONTAINERS ── */
+.chart-box{position:relative;}
+.chart-box canvas{display:block;}
+
+/* ── RANKING TABLE ── */
+.rank-table{width:100%;border-collapse:collapse;}
+.rank-table tr{border-bottom:1px solid var(--rule);}
+.rank-table tr:last-child{border-bottom:none;}
+.rank-table td{
+  padding:10px 0;
+  font-size:12.5px;
+  vertical-align:middle;
+}
+.rank-num{
+  font-family:'Playfair Display',serif;
+  font-size:16px;
+  font-weight:600;
+  color:var(--rule);
+  width:28px;
+}
+.rank-name{color:var(--ink);font-weight:400;}
+.rank-bar-wrap{
+  width:100px;
+  padding:0 12px;
+}
+.rank-bar-bg{
+  height:3px;
+  background:var(--bg);
+  border-radius:2px;
+  overflow:hidden;
+}
+.rank-bar-fill{
+  height:100%;
+  background:var(--ink);
+  border-radius:2px;
+  transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.rank-val{
+  font-family:'Lato',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:var(--slate);
+  text-align:right;
+  min-width:60px;
+}
+
+/* ── YEAR CARDS ── */
+.year-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+.year-card{
+  background:var(--white);
+  border:1px solid var(--rule);
+  padding:20px 22px;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.year-card:hover{border-color:var(--ink);}
+.year-card.active-year{border-color:var(--red);border-width:2px;}
+.year-card::before{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:3px;
+}
+.year-card[data-year="2020"]::before{background:var(--teal);}
+.year-card[data-year="2021"]::before{background:var(--gold);}
+.year-card[data-year="2022"]::before{background:var(--red);}
+.year-card[data-year="2023"]::before{background:var(--amber);}
+.year-label{
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:8px;
+}
+.year-num{
+  font-family:'Playfair Display',serif;
+  font-size:30px;
+  font-weight:700;
+  letter-spacing:-1px;
+  line-height:1;
+}
+.year-change{
+  font-size:11px;
+  margin-top:6px;
+  font-weight:400;
+}
+
+/* ── INSIGHT STRIP ── */
+.insight-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--rule);
+  border:1px solid var(--rule);
+  margin-bottom:20px;
+}
+.insight-cell{
+  background:var(--white);
+  padding:20px 24px;
+}
+.insight-label{
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:6px;
+}
+.insight-val{
+  font-family:'Playfair Display',serif;
+  font-size:24px;
+  font-weight:700;
+  letter-spacing:-0.5px;
+}
+.insight-desc{
+  font-size:11px;
+  color:var(--steel);
+  margin-top:4px;
+  line-height:1.5;
+}
+
+/* ── TOP COMPANIES TABLE ── */
+.co-table{width:100%;border-collapse:collapse;}
+.co-table th{
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  padding:0 0 12px 0;
+  border-bottom:2px solid var(--rule);
+  text-align:left;
+  font-weight:400;
+}
+.co-table th:last-child{text-align:right;}
+.co-table td{
+  padding:11px 0;
+  border-bottom:1px solid var(--rule);
+  font-size:12.5px;
+  vertical-align:middle;
+}
+.co-table tr:last-child td{border-bottom:none;}
+.co-table tr:hover td{background:var(--bg);}
+.co-bar{
+  display:inline-block;
+  height:4px;
+  background:var(--red);
+  opacity:0.6;
+  vertical-align:middle;
+  margin-left:8px;
+  transition:width 1s ease;
+  border-radius:2px;
+}
+.pill-stage{
+  display:inline-block;
+  padding:2px 8px;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  border-radius:1px;
+  font-weight:700;
+}
+.pill-ipo{background:var(--navy-soft);color:var(--navy);}
+.pill-late{background:var(--teal-soft);color:var(--teal);}
+.pill-mid{background:var(--amber-soft);color:var(--amber);}
+.pill-acq{background:#f0f0f8;color:var(--slate);}
+
+/* ── FOOTER ── */
+.dash-footer{
+  background:var(--ink);
+  padding:24px 56px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.footer-brand{
+  font-family:'Playfair Display',serif;
+  font-size:15px;
+  color:#fff;
+}
+.footer-brand em{color:#c8c8e8;font-style:italic;}
+.footer-note{
+  font-size:10px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--steel);
+}
+
+/* ── ROLLING TOTAL TOOLTIP ── */
+.tooltip-box{
+  background:var(--ink);
+  color:#fff;
+  padding:10px 14px;
+  font-size:11px;
+  border-radius:2px;
+  pointer-events:none;
+}
+
+/* ── FILTER ROW ── */
+.filter-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:20px;
+  align-items:center;
+}
+.filter-btn{
+  padding:7px 16px;
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  border:1px solid var(--rule);
+  background:var(--white);
+  cursor:pointer;
+  color:var(--steel);
+  transition:all 0.15s;
+  font-family:'Lato',sans-serif;
+  border-radius:1px;
+}
+.filter-btn:hover{border-color:var(--ink);color:var(--ink);}
+.filter-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.filter-label{
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-right:8px;
+}
+
+@media(max-width:1024px){
+  .masthead,.page,.dash-footer,.nav-bar{padding-left:24px;padding-right:24px;}
+  .grid-3col,.grid-2col,.grid-2col-r{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);}
+  .year-grid{grid-template-columns:repeat(2,1fr);}
+  .masthead{flex-direction:column;gap:16px;padding-bottom:20px;}
+  .masthead-meta{padding:0;}
+  .masthead-date{border:none;padding:0;}
+  .insight-strip{grid-template-columns:1fr;}
+}
+</style>
+
+<!-- Dark/Light Mode Toggle Styles -->
+<style>
+[data-theme="dark"] {
+    --bg: #1a1a1a !important;
+    --white: #2d2d2d !important;
+    --rule: #404040 !important;
+    --ink: #e0e0e0 !important;
+    --ink-light: #d0d0d0 !important;
+    --slate: #b0b0b0 !important;
+    --steel: #909090 !important;
+}
+
+/* Header & Footer stay dark in both modes for contrast */
+[data-theme="dark"] .masthead {
+    background: #0d0d1a !important;
+    border-bottom-color: #c0392b !important;
+}
+[data-theme="dark"] .masthead-left {
+    border-right-color: rgba(255,255,255,0.08) !important;
+}
+[data-theme="dark"] .overline {
+    color: #8a8a9a !important;
+}
+[data-theme="dark"] .masthead h1 {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .masthead h1 em {
+    color: #d0d0e8 !important;
+}
+[data-theme="dark"] .meta-val {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .meta-label {
+    color: #8a8a9a !important;
+}
+[data-theme="dark"] .date-period {
+    color: #d0d0e8 !important;
+}
+[data-theme="dark"] .date-sub {
+    color: #8a8a9a !important;
+}
+
+[data-theme="dark"] .dash-footer {
+    background: #0d0d1a !important;
+}
+[data-theme="dark"] .footer-brand {
+    color: #ffffff !important;
+}
+[data-theme="dark"] .footer-brand em {
+    color: #d0d0e8 !important;
+}
+[data-theme="dark"] .footer-note {
+    color: #8a8a9a !important;
+}
+
+/* Dark mode: Internal content visibility */
+[data-theme="dark"] .card {
+    background: #2d2d2d !important;
+    border-color: #404040 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .card-title {
+    color: #b0b0b0 !important;
+}
+[data-theme="dark"] .card-title span {
+    background: #1a1a1a !important;
+    color: #c0c0c0 !important;
+}
+[data-theme="dark"] .year-card {
+    background: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+[data-theme="dark"] .year-card:hover {
+    border-color: #e0e0e0 !important;
+}
+[data-theme="dark"] .year-label {
+    color: #909090 !important;
+}
+[data-theme="dark"] .insight-cell {
+    background: #2d2d2d !important;
+}
+[data-theme="dark"] .insight-label {
+    color: #909090 !important;
+}
+[data-theme="dark"] .kpi {
+    background: #2d2d2d !important;
+}
+[data-theme="dark"] .kpi:hover {
+    background: #353535 !important;
+}
+[data-theme="dark"] .kpi-label {
+    color: #909090 !important;
+}
+[data-theme="dark"] .kpi-sub {
+    color: #909090 !important;
+}
+[data-theme="dark"] .kpi-trend {
+    color: #b0b0b0 !important;
+}
+[data-theme="dark"] .nav-bar {
+    background: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+[data-theme="dark"] .nav-tab {
+    color: #909090 !important;
+}
+[data-theme="dark"] .nav-tab:hover {
+    color: #e0e0e0 !important;
+}
+[data-theme="dark"] .nav-tab.active {
+    color: #e0e0e0 !important;
+    border-bottom-color: #c0392b !important;
+}
+[data-theme="dark"] .nav-right {
+    color: #909090 !important;
+}
+[data-theme="dark"] .section-rule h2 {
+    color: #e0e0e0 !important;
+}
+[data-theme="dark"] .section-caption {
+    color: #909090 !important;
+}
+[data-theme="dark"] .filter-btn {
+    background: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #b0b0b0 !important;
+}
+[data-theme="dark"] .filter-btn:hover {
+    background: #353535 !important;
+}
+[data-theme="dark"] .filter-btn.active {
+    background: #c0392b !important;
+    border-color: #c0392b !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .rank-name {
+    color: #e0e0e0 !important;
+}
+[data-theme="dark"] .rank-val {
+    color: #b0b0b0 !important;
+}
+[data-theme="dark"] .co-table th {
+    color: #909090 !important;
+    border-color: #404040 !important;
+}
+[data-theme="dark"] .co-table td {
+    color: #e0e0e0 !important;
+    border-color: #404040 !important;
+}
+[data-theme="dark"] .co-table tr:hover td {
+    background: #353535 !important;
+}
+[data-theme="dark"] .pill-ipo {
+    background: #2a3a4a !important;
+    color: #8ab8d8 !important;
+}
+[data-theme="dark"] .pill-late {
+    background: #1a3a3a !important;
+    color: #6ab8b0 !important;
+}
+[data-theme="dark"] .pill-mid {
+    background: #3a3a2a !important;
+    color: #d8c88a !important;
+}
+[data-theme="dark"] .pill-acq {
+    background: #2a2a3a !important;
+    color: #a0a0b0 !important;
+}
+[data-theme="dark"] .year-num {
+    color: #e0e0e0 !important;
+}
+[data-theme="dark"] .year-change {
+    color: #909090 !important;
+}
+[data-theme="dark"] .insight-val {
+    color: #e0e0e0 !important;
+}
+
+/* Dark mode: Inline-styled year grid cells */
+[data-theme="dark"] .card.amber-top > div[style*="grid"] > div {
+    background: #2d2d2d !important;
+}
+[data-theme="dark"] .card.amber-top > div[style*="grid"] > div > div:last-child {
+    color: #909090 !important;
+}
+
+.theme-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    border: 1px solid var(--ink);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+    z-index: 9999;
+    font-size: 13px;
+    font-family: 'Lato', sans-serif;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="masthead-left">
+    <div class="overline">Executive Intelligence Report</div>
+    <h1>Global Tech Layoffs<br/><em>Industry Analysis</em></h1>
+  </div>
+  <div class="masthead-meta">
+    <div class="meta-item">
+      <div class="meta-val">386K</div>
+      <div class="meta-label">Jobs Lost</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-val">1,893</div>
+      <div class="meta-label">Companies</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-val">59</div>
+      <div class="meta-label">Countries</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-val">116</div>
+      <div class="meta-label">Full Shutdowns</div>
+    </div>
+  </div>
+  <div class="masthead-date">
+    <div class="date-box">
+      <div class="date-period">March 2020 – March 2023</div>
+      <div class="date-sub">Dataset Coverage Period</div>
+    </div>
+  </div>
+</header>
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-accent" style="background:var(--red)"></div>
+    <div class="kpi-label">Peak Single Year</div>
+    <div class="kpi-number" style="color:var(--red)">161,711</div>
+    <div class="kpi-sub">Layoffs recorded in 2022</div>
+    <div class="kpi-trend" style="color:var(--red)">▲ 922% vs 2021</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:var(--navy)"></div>
+    <div class="kpi-label">Largest Single Layoff</div>
+    <div class="kpi-number" style="color:var(--navy)">18,150</div>
+    <div class="kpi-sub">Amazon — across 2022–2023</div>
+    <div class="kpi-trend" style="color:var(--navy)">→ Big Tech led contraction</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:var(--teal)"></div>
+    <div class="kpi-label">US Share of Total</div>
+    <div class="kpi-number" style="color:var(--teal)">66.8%</div>
+    <div class="kpi-sub">258,159 of 386,379 layoffs</div>
+    <div class="kpi-trend" style="color:var(--teal)">→ US-centric exposure</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-accent" style="background:var(--amber)"></div>
+    <div class="kpi-label">Jan 2023 Alone</div>
+    <div class="kpi-number" style="color:var(--amber)">84,714</div>
+    <div class="kpi-sub">Single worst month on record</div>
+    <div class="kpi-trend" style="color:var(--amber)">▲ Largest monthly spike</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-bar">
+  <div class="nav-tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="nav-tab" onclick="switchTab('trends',this)">Trend Analysis</div>
+  <div class="nav-tab" onclick="switchTab('sectors',this)">Sectors & Geography</div>
+  <div class="nav-tab" onclick="switchTab('companies',this)">Company Leaders</div>
+  <div class="nav-right">Dataset: layoffs.csv · MySQL Analysis</div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     PANEL 1 — OVERVIEW
+════════════════════════════════════════════ -->
+<div class="panel active" id="panel-overview">
+<div class="page">
+
+  <!-- Year cards + context -->
+  <div class="section-rule">
+    <h2>Annual Performance</h2>
+    <div class="rule-line"></div>
+    <div class="section-caption">Click a year to filter</div>
+  </div>
+
+  <div class="year-grid" id="yearCards">
+    <div class="year-card" data-year="2020" onclick="filterYear(2020,this)">
+      <div class="year-label">FY 2020</div>
+      <div class="year-num">81,068</div>
+      <div class="year-change" style="color:var(--teal)">COVID-19 initial wave</div>
+    </div>
+    <div class="year-card" data-year="2021" onclick="filterYear(2021,this)">
+      <div class="year-label">FY 2021</div>
+      <div class="year-num">15,823</div>
+      <div class="year-change" style="color:var(--gold)">▼ 80.5% · Recovery year</div>
+    </div>
+    <div class="year-card" data-year="2022" onclick="filterYear(2022,this)">
+      <div class="year-label">FY 2022</div>
+      <div class="year-num">161,711</div>
+      <div class="year-change" style="color:var(--red)">▲ 922% · Post-ZIRP crash</div>
+    </div>
+    <div class="year-card" data-year="2023" onclick="filterYear(2023,this)">
+      <div class="year-label">Q1 2023</div>
+      <div class="year-num">127,277</div>
+      <div class="year-change" style="color:var(--amber)">Jan alone: 84,714</div>
+    </div>
+  </div>
+
+  <!-- Year detail bar + stage donut -->
+  <div class="grid-3col">
+    <div class="card red-top">
+      <div class="card-title">Annual Layoffs Comparison <span id="yearChartLabel">All Years</span></div>
+      <div class="chart-box" style="height:220px">
+        <canvas id="yearBar"></canvas>
+      </div>
+    </div>
+    <div class="card navy-top">
+      <div class="card-title">By Funding Stage</div>
+      <div class="chart-box" style="height:220px">
+        <canvas id="stageDonut"></canvas>
+      </div>
+    </div>
+    <div class="card teal-top">
+      <div class="card-title">Top 5 Cos · Selected Year <span id="yearTopLabel">All</span></div>
+      <div id="yearTopList" style="margin-top:4px;">
+        <table class="rank-table">
+          <tbody id="yearTopBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insight strip -->
+  <div class="insight-strip">
+    <div class="insight-cell">
+      <div class="insight-label">Post-IPO Dominance</div>
+      <div class="insight-val" style="color:var(--navy)">204,882</div>
+      <div class="insight-desc">Layoffs from publicly listed companies — 53% of all recorded job cuts. Rate hikes hit public market valuations hardest.</div>
+    </div>
+    <div class="insight-cell">
+      <div class="insight-label">Complete Company Shutdowns</div>
+      <div class="insight-val" style="color:var(--red)">116</div>
+      <div class="insight-desc">Companies where 100% of staff were let go. Several had raised over $500M in venture funding before closure.</div>
+    </div>
+    <div class="insight-cell">
+      <div class="insight-label">Lowest Year on Record</div>
+      <div class="insight-val" style="color:var(--teal)">15,823</div>
+      <div class="insight-desc">2021 saw near-zero layoffs as ZIRP-era hiring surged. This over-hiring set the stage for 2022's historic correction.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANEL 2 — TREND ANALYSIS
+════════════════════════════════════════════ -->
+<div class="panel" id="panel-trends">
+<div class="page">
+
+  <div class="section-rule">
+    <h2>Cumulative Trend · March 2020 – March 2023</h2>
+    <div class="rule-line"></div>
+    <div class="section-caption">36-Month Rolling Total</div>
+  </div>
+
+  <div class="card red-top" style="margin-bottom:20px;">
+    <div class="card-title">Monthly Layoffs + Rolling Cumulative Total <span>386,379 total over 36 months</span></div>
+    <div class="chart-box" style="height:300px">
+      <canvas id="rollingChart"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-2col">
+    <div class="card amber-top">
+      <div class="card-title">Monthly Layoff Heatmap <span>Relative intensity</span></div>
+      <div id="heatmap" style="margin-top:8px;"></div>
+    </div>
+    <div class="card navy-top">
+      <div class="card-title">Notable Inflection Points</div>
+      <table class="co-table" style="margin-top:4px;">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Event</th>
+            <th style="text-align:right">Layoffs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Apr 2020</td><td style="color:var(--slate)">COVID-19 travel & hospitality collapse</td><td style="text-align:right;font-weight:700;color:var(--red)">26,710</td></tr>
+          <tr><td>May 2020</td><td style="color:var(--slate)">Consumer, retail, food wave hits</td><td style="text-align:right;font-weight:700;color:var(--red)">25,804</td></tr>
+          <tr><td>Nov 2022</td><td style="color:var(--slate)">Meta (-11K), Twitter, Amazon begin cuts</td><td style="text-align:right;font-weight:700;color:var(--red)">53,751</td></tr>
+          <tr><td>Jan 2023</td><td style="color:var(--slate)">Google, Microsoft, Amazon major rounds</td><td style="text-align:right;font-weight:700;color:var(--red)">84,714</td></tr>
+          <tr><td>Feb 2023</td><td style="color:var(--slate)">Ericsson, Dell, further Big Tech rounds</td><td style="text-align:right;font-weight:700;color:var(--amber)">38,093</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANEL 3 — SECTORS & GEOGRAPHY
+════════════════════════════════════════════ -->
+<div class="panel" id="panel-sectors">
+<div class="page">
+
+  <div class="section-rule">
+    <h2>Sector &amp; Geographic Breakdown</h2>
+    <div class="rule-line"></div>
+    <div class="section-caption">Total Layoffs by Industry and Country</div>
+  </div>
+
+  <div class="grid-2col" style="margin-bottom:20px;">
+    <div class="card red-top">
+      <div class="card-title">Top 10 Industries by Layoffs</div>
+      <div class="chart-box" style="height:300px;">
+        <canvas id="industryChart"></canvas>
+      </div>
+    </div>
+    <div class="card navy-top">
+      <div class="card-title">Top 10 Countries by Layoffs</div>
+      <div style="margin-top:8px;" id="countryRank">
+        <table class="rank-table"><tbody id="countryBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-strip">
+    <div class="insight-cell">
+      <div class="insight-label">Hardest Hit Sector</div>
+      <div class="insight-val" style="color:var(--red)">Consumer</div>
+      <div class="insight-desc">46,682 layoffs. Post-pandemic demand contraction and over-expansion reversed sharply in 2022.</div>
+    </div>
+    <div class="insight-cell">
+      <div class="insight-label">Finance Sector</div>
+      <div class="insight-val" style="color:var(--navy)">28,344</div>
+      <div class="insight-desc">284 companies affected. Crypto winter and rising rates squeezed fintech valuations dramatically.</div>
+    </div>
+    <div class="insight-cell">
+      <div class="insight-label">India — 2nd Globally</div>
+      <div class="insight-val" style="color:var(--teal)">35,993</div>
+      <div class="insight-desc">India ranked 2nd in total layoffs — edtech, fintech and e-commerce pullbacks drove the majority.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PANEL 4 — COMPANY LEADERS
+════════════════════════════════════════════ -->
+<div class="panel" id="panel-companies">
+<div class="page">
+
+  <div class="section-rule">
+    <h2>Top Companies by Layoff Volume</h2>
+    <div class="rule-line"></div>
+    <div class="section-caption">Cumulative 2020–2023</div>
+  </div>
+
+  <div class="grid-2col-r" style="margin-bottom:20px;">
+    <div class="card gold-top">
+      <div class="card-title">Big Tech Concentration</div>
+      <div class="chart-box" style="height:320px;">
+        <canvas id="companyDonut"></canvas>
+      </div>
+    </div>
+    <div class="card red-top">
+      <div class="card-title">Ranked by Total Headcount Reduction <span>All Years Combined</span></div>
+      <table class="co-table" style="margin-top:4px;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Company</th>
+            <th>Scale</th>
+            <th>Stage</th>
+            <th style="text-align:right">Total Laid Off</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule);width:28px">1</td>
+            <td>Amazon</td>
+            <td><span class="co-bar" style="width:100px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">18,150</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">2</td>
+            <td>Google</td>
+            <td><span class="co-bar" style="width:66px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">12,000</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">3</td>
+            <td>Meta</td>
+            <td><span class="co-bar" style="width:60px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">11,000</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">4</td>
+            <td>Salesforce</td>
+            <td><span class="co-bar" style="width:55px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">10,090</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">5</td>
+            <td>Philips</td>
+            <td><span class="co-bar" style="width:55px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">10,000</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">6</td>
+            <td>Microsoft</td>
+            <td><span class="co-bar" style="width:55px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">10,000</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">7</td>
+            <td>Ericsson</td>
+            <td><span class="co-bar" style="width:47px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">8,500</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">8</td>
+            <td>Uber</td>
+            <td><span class="co-bar" style="width:42px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">7,585</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">9</td>
+            <td>Dell</td>
+            <td><span class="co-bar" style="width:37px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">6,650</td>
+          </tr>
+          <tr>
+            <td style="font-family:'Playfair Display',serif;font-size:15px;color:var(--rule)">10</td>
+            <td>Booking.com</td>
+            <td><span class="co-bar" style="width:25px"></span></td>
+            <td><span class="pill-stage pill-ipo">Post-IPO</span></td>
+            <td style="text-align:right;font-weight:700">4,601</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card amber-top">
+    <div class="card-title">Top Company Per Year — Annual Leaders <span>By total annual headcount reduction</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);margin-top:4px;">
+      <div style="background:var(--white);padding:18px 20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:8px;">2020</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">Uber</div>
+        <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--teal);letter-spacing:-1px;margin:4px 0;">7,525</div>
+        <div style="font-size:11px;color:var(--steel);">Followed by Booking.com (4,375)</div>
+      </div>
+      <div style="background:var(--white);padding:18px 20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">2021</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">Bytedance</div>
+        <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);letter-spacing:-1px;margin:4px 0;">3,600</div>
+        <div style="font-size:11px;color:var(--steel);">Followed by Katerra (2,434)</div>
+      </div>
+      <div style="background:var(--white);padding:18px 20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px;">2022</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">Meta</div>
+        <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--red);letter-spacing:-1px;margin:4px 0;">11,000</div>
+        <div style="font-size:11px;color:var(--steel);">Followed by Amazon (10,150)</div>
+      </div>
+      <div style="background:var(--white);padding:18px 20px;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:8px;">2023</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">Google</div>
+        <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--amber);letter-spacing:-1px;margin:4px 0;">12,000</div>
+        <div style="font-size:11px;color:var(--steel);">Followed by Microsoft (10,000)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer class="dash-footer">
+  <div class="footer-brand">Global Tech Layoffs · <em>Executive Dashboard</em></div>
+  <div class="footer-note">Source: layoffs.csv · MySQL Analysis · 2,361 Records · 2020–2023</div>
+</footer>
+
+<script>
+// ── Data constants ──────────────────────────────────────────
+// Theme-aware chart colors
+function getChartColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    ink: isDark ? '#e0e0e0' : '#1a1a2e',
+    red: '#c0392b',
+    amber: '#d4882a',
+    teal: '#1a7a6e',
+    navy: '#1e3a5f',
+    gold: '#b8962e',
+    slate: isDark ? '#b0b0b0' : '#4a4a6a',
+    rule: isDark ? '#404040' : '#e2e2ec',
+    steel: isDark ? '#b0b0b0' : '#7a7a9a',
+    bg: isDark ? '#1a1a1a' : '#f7f7fb',
+    white: isDark ? '#2d2d2d' : '#ffffff',
+    gridColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'
+  };
+}
+
+const C = getChartColors();
+
+Chart.defaults.font.family = "'Lato', sans-serif";
+Chart.defaults.color = C.steel;
+Chart.defaults.font.size = 11;
+
+// ── Year totals by company ──────────────────────────────────
+const yearTopData = {
+  2020:[['Uber',7525],['Booking.com',4375],['Groupon',2800],['Swiggy',2250],['Airbnb',1900]],
+  2021:[['Bytedance',3600],['Katerra',2434],['Zillow',2000],['Instacart',1877],['WhiteHat Jr',1800]],
+  2022:[['Meta',11000],['Amazon',10150],['Cisco',4100],['Peloton',4084],['Carvana',4000]],
+  2023:[['Google',12000],['Microsoft',10000],['Ericsson',8500],['Amazon',8000],['Salesforce',8000]],
+};
+const yearTotal = {2020:81068,2021:15823,2022:161711,2023:127277};
+
+// ── Year bar chart ─────────────────────────────────────────
+let yearBarChart;
+(function(){
+  const ctx = document.getElementById('yearBar').getContext('2d');
+  yearBarChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['2020','2021','2022','2023 Q1'],
+      datasets:[{
+        data:[81068,15823,161711,127277],
+        backgroundColor:[
+          'rgba(26,122,110,0.75)',
+          'rgba(184,150,46,0.75)',
+          'rgba(192,57,43,0.9)',
+          'rgba(212,136,42,0.75)'
+        ],
+        borderColor:['#1a7a6e','#b8962e','#c0392b','#d4882a'],
+        borderWidth:1,
+        borderRadius:1,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toLocaleString()} layoffs`}}},
+      scales:{
+        x:{grid:{display:false},border:{color:C.rule},ticks:{color:C.steel,font:{size:11}}},
+        y:{grid:{color:C.gridColor},border:{display:false},ticks:{color:C.steel,callback:v=>(v/1000)+'K',font:{size:10}}}
+      }
+    }
+  });
+})();
+
+// ── Stage donut ────────────────────────────────────────────
+(function(){
+  const ctx = document.getElementById('stageDonut').getContext('2d');
+  new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Post-IPO','Unknown','Acquired','Series C','Series D','Series B','Series E','Series F'],
+      datasets:[{
+        data:[204882,41016,29176,20017,19225,15311,12697,9932],
+        backgroundColor:['#1e3a5f','#7a7a9a','#4a4a6a','#1a7a6e','#b8962e','#c0392b','#d4882a','#2e5f5a'],
+        borderWidth:3, borderColor:'#fff',hoverOffset:4
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:8,font:{size:10},boxWidth:8,color:C.steel}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toLocaleString()}`}}
+      },
+      cutout:'62%'
+    }
+  });
+})();
+
+// ── Year top list ──────────────────────────────────────────
+function renderYearTop(year){
+  const data = year ? yearTopData[year] : [['Amazon',18150],['Google',12000],['Meta',11000],['Salesforce',10090],['Microsoft',10000]];
+  const max = data[0][1];
+  const tbody = document.getElementById('yearTopBody');
+  tbody.innerHTML = data.map(([co,val],i)=>`
+    <tr>
+      <td class="rank-num">${i+1}</td>
+      <td class="rank-name">${co}</td>
+      <td class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:0%" data-w="${Math.round(val/max*100)}%"></div></div></td>
+      <td class="rank-val">${val.toLocaleString()}</td>
+    </tr>`).join('');
+  setTimeout(()=>{
+    document.querySelectorAll('.rank-bar-fill').forEach(el=>{ el.style.width=el.dataset.w; });
+  },100);
+  document.getElementById('yearTopLabel').textContent = year || 'All';
+}
+renderYearTop(null);
+
+// ── Year filter interaction ────────────────────────────────
+let activeYear = null;
+function filterYear(yr, el){
+  if(activeYear===yr){ activeYear=null; el.classList.remove('active-year'); renderYearTop(null); document.getElementById('yearChartLabel').textContent='All Years'; }
+  else {
+    activeYear=yr;
+    document.querySelectorAll('.year-card').forEach(c=>c.classList.remove('active-year'));
+    el.classList.add('active-year');
+    renderYearTop(yr);
+    document.getElementById('yearChartLabel').textContent = yr;
+  }
+}
+
+// ── Rolling chart ─────────────────────────────────────────
+(function(){
+  const monthly=[
+    ['2020-03',9698,9698],['2020-04',26710,36408],['2020-05',25804,62212],
+    ['2020-06',7627,69839],['2020-07',7112,76951],['2020-08',1969,78920],
+    ['2020-09',609,79529],['2020-10',450,79979],['2020-11',237,80216],['2020-12',852,81068],
+    ['2021-01',5468,86536],['2021-02',1267,87803],['2021-03',47,87850],
+    ['2021-04',204,88054],['2021-05',900,88954],['2021-06',975,89929],
+    ['2021-07',80,90009],['2021-08',191,90200],['2021-09',75,90275],
+    ['2021-10',22,90297],['2021-11',2250,92547],['2021-12',4344,96891],
+    ['2022-01',4459,101350],['2022-02',4468,105818],['2022-03',6990,112808],
+    ['2022-04',12353,125161],['2022-05',15813,140974],['2022-06',18144,159118],
+    ['2022-07',16223,175341],['2022-08',13055,188396],['2022-09',5881,194277],
+    ['2022-10',17406,211683],['2022-11',53751,265434],['2022-12',10329,275763],
+    ['2023-01',84714,360477],['2023-02',38093,398570],['2023-03',4470,403040]
+  ];
+  const labels = monthly.map(d=>d[0]);
+  const monthly_vals = monthly.map(d=>d[1]);
+  const rolling_vals = monthly.map(d=>d[2]);
+
+  const ctx = document.getElementById('rollingChart').getContext('2d');
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {
+          type:'line',
+          label:'Rolling Total',
+          data:rolling_vals,
+          borderColor:C.navy,
+          backgroundColor:'transparent',
+          borderWidth:2,
+          pointRadius:0,
+          pointHoverRadius:4,
+          tension:0.3,
+          yAxisID:'y2',
+          order:1
+        },
+        {
+          type:'bar',
+          label:'Monthly',
+          data:monthly_vals,
+          backgroundColor: monthly_vals.map(v=>
+            v>50000?'rgba(192,57,43,0.85)':
+            v>15000?'rgba(212,136,42,0.75)':
+            'rgba(26,58,95,0.45)'
+          ),
+          borderWidth:0,
+          yAxisID:'y1',
+          borderRadius:1,
+          order:2
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{
+          display:true,
+          position:'top',
+          align:'end',
+          labels:{boxWidth:10,font:{size:10},padding:16,color:C.steel}
+        },
+        tooltip:{
+          callbacks:{
+            label:ctx=>{
+              if(ctx.dataset.label==='Monthly') return ` Monthly: ${ctx.raw.toLocaleString()}`;
+              return ` Cumulative: ${ctx.raw.toLocaleString()}`;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},border:{color:C.rule},ticks:{color:C.steel,font:{size:9},maxTicksLimit:12}},
+        y1:{position:'left',grid:{color:C.gridColor},border:{display:false},ticks:{color:C.steel,callback:v=>(v/1000)+'K',font:{size:9}}},
+        y2:{position:'right',grid:{display:false},border:{display:false},ticks:{color:C.steel,callback:v=>(v/1000)+'K',font:{size:9}}}
+      }
+    }
+  });
+})();
+
+// ── Heatmap ───────────────────────────────────────────────
+(function(){
+  const data={
+    '2020':{3:9698,4:26710,5:25804,6:7627,7:7112,8:1969,9:609,10:450,11:237,12:852},
+    '2021':{1:5468,2:1267,3:47,4:204,5:900,6:975,7:80,8:191,9:75,10:22,11:2250,12:4344},
+    '2022':{1:4459,2:4468,3:6990,4:12353,5:15813,6:18144,7:16223,8:13055,9:5881,10:17406,11:53751,12:10329},
+    '2023':{1:84714,2:38093,3:4470}
+  };
+  const maxVal=84714;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const years=['2020','2021','2022','2023'];
+
+  let html=`<div style="display:grid;grid-template-columns:36px repeat(12,1fr);gap:2px;font-size:10px;">`;
+  html+=`<div></div>`+months.map(m=>`<div style="text-align:center;letter-spacing:1px;color:var(--steel);padding-bottom:6px;">${m}</div>`).join('');
+  years.forEach(yr=>{
+    html+=`<div style="display:flex;align-items:center;color:var(--steel);letter-spacing:1px;font-size:9px;">${yr}</div>`;
+    for(let m=1;m<=12;m++){
+      const v=data[yr]&&data[yr][m]?data[yr][m]:0;
+      const intensity=v/maxVal;
+      let bg;
+      if(!v)bg='rgba(0,0,0,0.04)';
+      else if(intensity>0.5)bg=`rgba(192,57,43,${0.4+intensity*0.6})`;
+      else if(intensity>0.1)bg=`rgba(212,136,42,${0.3+intensity*0.7})`;
+      else bg=`rgba(26,58,95,${0.15+intensity*2})`;
+      html+=`<div title="${yr}-${String(m).padStart(2,'0')}: ${v.toLocaleString()} layoffs" style="height:22px;background:${bg};border-radius:1px;cursor:default;transition:opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1"></div>`;
+    }
+  });
+  html+=`</div>`;
+  html+=`<div style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:10px;color:var(--steel);">
+    <span>Low</span>
+    <div style="display:flex;gap:2px;">${[0.1,0.25,0.4,0.6,0.8,1].map(v=>`<div style="width:16px;height:8px;border-radius:1px;background:rgba(192,57,43,${v*0.85})"></div>`).join('')}</div>
+    <span>High</span>
+  </div>`;
+
+  document.getElementById('heatmap').innerHTML=html;
+})();
+
+// ── Industry chart ────────────────────────────────────────
+(function(){
+  const ctx = document.getElementById('industryChart').getContext('2d');
+  const labels=['Consumer','Retail','Other','Transportation','Finance','Healthcare','Food','Real Estate','Travel','Hardware'];
+  const data=[46682,43613,36289,31998,28344,25953,22855,17565,17129,13828];
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        data,
+        backgroundColor:[
+          '#c0392b','#c0392b','#1e3a5f','#1e3a5f','#d4882a',
+          '#1a7a6e','#b8962e','#4a4a6a','#7a7a9a','#2e5f5a'
+        ].map(c=>c+'cc'),
+        borderColor:[
+          '#c0392b','#c0392b','#1e3a5f','#1e3a5f','#d4882a',
+          '#1a7a6e','#b8962e','#4a4a6a','#7a7a9a','#2e5f5a'
+        ],
+        borderWidth:1,
+        borderRadius:1
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toLocaleString()} layoffs`}}},
+      scales:{
+        x:{grid:{color:C.gridColor},border:{display:false},ticks:{color:C.steel,callback:v=>(v/1000)+'K',font:{size:9}}},
+        y:{grid:{display:false},border:{display:false},ticks:{color:C.steel,font:{size:11}}}
+      }
+    }
+  });
+})();
+
+// ── Country rank bars ─────────────────────────────────────
+(function(){
+  const data=[
+    ['United States',258159],['India',35993],['Netherlands',17220],
+    ['Sweden',11264],['Brazil',10691],['Germany',8701],
+    ['United Kingdom',7148],['Canada',6319],['Singapore',5995],['China',5905]
+  ];
+  const max=data[0][1];
+  const colors=['#c0392b','#1e3a5f','#1a7a6e','#d4882a','#b8962e','#4a4a6a','#2e5f5a','#7a7a9a','#c0392b','#1e3a5f'];
+  const tbody=document.getElementById('countryBody');
+  tbody.innerHTML=data.map(([name,val],i)=>`
+    <tr>
+      <td class="rank-num">${i+1}</td>
+      <td class="rank-name">${name}</td>
+      <td class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar-fill" style="width:0%;background:${colors[i]}" data-w="${Math.round(val/max*100)}%"></div></div></td>
+      <td class="rank-val">${val.toLocaleString()}</td>
+    </tr>`).join('');
+  setTimeout(()=>{ document.querySelectorAll('#countryBody .rank-bar-fill').forEach(el=>{el.style.width=el.dataset.w;}); },300);
+})();
+
+// ── Company donut ─────────────────────────────────────────
+(function(){
+  const ctx=document.getElementById('companyDonut').getContext('2d');
+  const top10=18150+12000+11000+10090+10000+10000+8500+7585+6650+4601;
+  const rest=386379-top10;
+  new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Amazon','Google','Meta','Salesforce','Philips','Microsoft','Ericsson','Uber','Dell','Booking.com','All Others'],
+      datasets:[{
+        data:[18150,12000,11000,10090,10000,10000,8500,7585,6650,4601,rest],
+        backgroundColor:['#c0392b','#1a7a6e','#1e3a5f','#d4882a','#b8962e','#2e5f5a','#4a4a6a','#7a7a9a','#c0392b99','#1e3a5f99','#e2e2ec'],
+        borderWidth:3,borderColor:'#fff',hoverOffset:5
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'right',labels:{padding:10,font:{size:9.5},boxWidth:9,color:C.steel}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.raw.toLocaleString()} (${(ctx.raw/386379*100).toFixed(1)}%)`}}
+      },
+      cutout:'55%'
+    }
+  });
+})();
+
+// ── Tab switching ─────────────────────────────────────────
+function switchTab(name, el){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+
+  // Trigger bar animations on tab switch
+  if(name==='sectors'){
+    setTimeout(()=>{ document.querySelectorAll('#countryBody .rank-bar-fill').forEach(el=>{el.style.width=el.dataset.w;}); },100);
+  }
+}
+
+// ── Init bar animations after load ───────────────────────
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.querySelectorAll('.rank-bar-fill').forEach(el=>{
+      if(el.dataset.w) el.style.width=el.dataset.w;
+    });
+  },400);
+});
+
+// Dark/Light Mode Toggle
+(function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'theme-toggle-btn';
+    toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Refresh chart colors when theme changes
+    function updateChartTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const colors = {
+            steel: isDark ? '#b0b0b0' : '#7a7a9a',
+            gridColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+            rule: isDark ? '#404040' : '#e2e2ec'
+        };
+        Chart.defaults.color = colors.steel;
+        Chart.helpers.each(Chart.instances, function(chart) {
+            if (chart.options.scales) {
+                if (chart.options.scales.x) {
+                    chart.options.scales.x.ticks.color = colors.steel;
+                    if (chart.options.scales.x.grid) chart.options.scales.x.grid.color = colors.gridColor;
+                    if (chart.options.scales.x.border) chart.options.scales.x.border.color = colors.rule;
+                }
+                if (chart.options.scales.y) {
+                    chart.options.scales.y.ticks.color = colors.steel;
+                    if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = colors.gridColor;
+                }
+                if (chart.options.scales.y1) {
+                    chart.options.scales.y1.ticks.color = colors.steel;
+                    if (chart.options.scales.y1.grid) chart.options.scales.y1.grid.color = colors.gridColor;
+                }
+                if (chart.options.scales.y2) {
+                    chart.options.scales.y2.ticks.color = colors.steel;
+                }
+            }
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = colors.steel;
+            }
+            chart.update();
+        });
+    }
+
+    toggleBtn.onclick = function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        toggleBtn.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        updateChartTheme();
+    };
+
+    document.body.appendChild(toggleBtn);
+})();
+</script>
+</body>
+</html>
